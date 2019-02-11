@@ -40,9 +40,11 @@ The method "generateToken()" in the User model is used to generate the authentic
 ###### Controllers:
 There are three main controllers involved in this case
 - /app/Http/Controllers/Auth/LoginController.php
+> login and authenticate the user and re-generate the token
 - /app/Http/Controllers/Auth/RegisterController.php
+> register a new user and generate the token
 - /app/Http/Controllers/StoresController.php
-it will take care of the routed HTTP actions according to URI
+> it will take care of the routed HTTP actions according to URI
 
 ###### Exceptions:
 
@@ -58,6 +60,20 @@ it will take care of the routed HTTP actions according to URI
  * (5) view all store branches with all of their children
  * (6) view one specific store branch with all of its children
  * (7) view one specific store branch without any children
+ 
+###### User registeration:
+```
+URI: http://store.test/api/register
+Body: {"name":"username","email":"email_address","password":"password","password_confirmation":"password"}
+```
+after the user is registered, the token will be returned, and you can use this token (Authorization: Bearer Token) for the following API requests.
+
+###### Some notes:
+please ensure the header shall have
+```
+Accept: application/json
+Content-Type: application/json
+```
  
 #### (1) create a store branch
 ```
