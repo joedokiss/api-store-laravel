@@ -1,9 +1,9 @@
 ## 1. About this API:
 > this Restful API is built by Laravel 5.5
 
-> the tree structure (see snapshot 1 as example, which is used in this demo application) will be essentially demonstrated as the array structure (eg. array $nodes), and the tree will be built as (see snapshot 2 as example)
+> the tree structure (see snapshot 1 as example, which is used in this demo application) will be essentially demonstrated as the array structure (eg. array $stores), and the tree will be built as (see snapshot 2 as example)
 ```
-$nodes = [
+$stores = [
 	['id' => 1,  'parent_id' => 0, 'store_name' => 'A'],
 	['id' => 2,  'parent_id' => 0, 'store_name' => 'B'],
 	['id' => 3,  'parent_id' => 0, 'store_name' => 'C'],
@@ -23,106 +23,115 @@ $nodes = [
 
 ###### snapshot 2
 
-* Each element in the $nodes array stands for a store branch, and has a 'parent_id' indicating store's parent
-* Each element in the $nodes array is saved into the database as a row.
+* Each element in the $stores array stands for a store branch, and has a 'parent_id' indicating store's parent
+* Each element in the $stores array is saved into the database as a row.
 * after the tree is built, each element will have a key "children" to store the children (if any).
 
 ## 2. About scripts:
-* Routing:
+###### Routing:
 The routes are defined in the /routes/api.php, all actions in this case would need to be authenticated.
-* Models:
+
+###### Models:
 The models are defined in the /app/Models, in most cases, the API is leveraging the Laravel native Eloquent (ORM), and therefore, you may not see explicitly defined functions in models.
 
 The method "generateToken()" in the User model is used to generate the authentication token to access the API, essentially the token will be refreshed after each login.
+###### Controllers:
+There are three main controllers involved in this case
+- /app/Http/Controllers/Auth/LoginController.php
+- /app/Http/Controllers/Auth/RegisterController.php
+- /app/Http/Controllers/StoresController.php
+it will take care of the routed HTTP actions according to URI
 
 ## 3. How the demo works:
-###### NOTE:
-
+###### missions:
+/**
+ * (1) create a store branch
+ * (2) update a store branch
+ * (3) delete a store branch along with all of its children
+ * (4) move a store branch (along with all of its children) to a different store branch
+ * (5) view all store branches with all of their children
+ * (6) view one specific store branch with all of its children
+ * (7) view one specific store branch without any children
+ */
+ 
 #### (1) create a store branch
 ```
-URI: /restful/branches
+URI: http://store.test/api/stores
 Method: POST
-Action: create
+Controller action: store
 ```
-eg. pass the body parameters like
+eg. create a new store (M) as child of store A (id => 1) 
 ```
-{
+URL: http://store.test/api/stores
+Body: {
   "parent_id":1,
   "store_name":"M",
-  "store_state":"VIC"
 }
 ```
 #### (2) update a store branch
 #### (4) move a store branch (along with all of its children) to a different store branch
 ###### NOTE:
-combine both (2) and (4) in one place, because as long as the node's "parent_id" is changed, 
-all of its children will be moved, which can be considered as part of "update", 
-in case the "parent_id" remains the same, the node will not be moved, the other information can be updated instead.
+both (2) and (4) will be managed by PUT (update), the change to "parent_id" will have the certain store along with its children (if any) moved, if the "parent_id" remains the same, the store will not be moved, the other information (like store name) can be updated instead.
 
 ```
-URI: /restful/branches/{id}
+URI: http://store.test/api/stores/{store}
 Method: PUT
-Action: update
+Controller action: update
 ```
-eg. this sample will move the node A and all its children under C 
+eg. it will move the store A (id => 1) and all its children under C (id => 3), and A store name will remain same
 ```
-/restful/branches/1
-{
+URL: http://store.test/api/stores/1
+Body: {
  "parent_id":3
 }
 ```
-eg. this sample will update node A's details
+eg. it will only update store A's name
 ```
-/restful/branches/1
-{
- "store_name":"AA",
- "store_state":"QLD"
+URI: http://store.test/api/stores/1
+Body: {
+ "store_name":"A_updated_name"
 }
 ```
 
 #### (3) delete a store branch along with all of its children
 ```
-URI: /restful/branches/{id}
+URI: http://store.test/api/stores/{store}
 Method: DELETE
-Action: delete
+Controller action: destroy
 ```
-eg. this sample will delete node B and all its children (if any)
+eg. it will delete node B (id => 2) and all its children (if any)
 ```
-/restful/branches/3
+URI: http://store.test/api/stores/2
 ```
 #### (5) view all store branches with all of their children
 ```
-URI: /restful/branches
+URI: http://store.test/api/stores
 Method: GET
+Controller action: index
 ```
-eg. 
+eg. it will list all stores in tree array structure
 ```
-/restful/branches
+URI: http://store.test/api/stores
 ```
 #### (6) view one specific store branch with all of its children
 #### (7) view one specific store branch without any children
 ```
-URI: /restful/branches/{id}
+URI: http://store.test/api/stores/{store}
 Method: GET
-Action: view
+Controller action: show
 ```
-eg. it will outline the subtree (node B as root including all its children, if any) 
+- if the provided store has any children, the sub-tree (the provided store will be as 'root') will be built and returned
+- if the provided store has no children, the API will return store's details
+
+eg. store E (id => 5) has no children, and therefore, this will only return store E's details 
 ```
-/restful/branches/2
-{
-  "children":"true"
-}
+URI: http://store.test/api/stores/5
+```
+eg. store A (id => 1) has children, and therefore, this will return a sub-tree (store A is root)
+```
+URI: http://store.test/api/stores/1
 ```
 
-> NOTE: with/without children can be controlled by passing parameter "children" ("true" is with children, "false" is "without children")
-
-eg. this example tends to view store (node A) and assuming it has no children, in which case, the API will respond an array having all available nodes without the children 
-```
-/restful/branches/1
-{
-  "children":"false"
-}
-```
 ## 4. Notes to unit test:
 the last tree test cases are dependent because they were testing the real actions other than leveraging the mocking any more, you may consider to test those one by one (roll back the database to original status with raw data every time) other than at once, but the following test sequence will work anyway.
 ```
