@@ -47,9 +47,10 @@ There are three main controllers involved in this case
 > it will take care of the routed HTTP actions according to URI
 
 ###### Exceptions:
+the Laravel is taking care of execptions automatically, however, some exceptions are not having clear indication at times, and hence, the "render()" method in /app/Exceptions/Handler.php is tweaked a little bit.
 
 ###### Tree:
-/app/Lib/Tree.php
+the core logic in relation to the tree structure can be found in /app/Lib/Tree.php
 
 ## 3. How the demo works:
 ###### Requirements:
@@ -72,12 +73,14 @@ Body: {"name":"username","email":"email_address","password":"password","password
 after the user is registered, the token will be returned, and you can use this token (Authorization: Bearer Token) for the following API requests.
 
 ###### Some notes:
-please ensure the header shall have
+(1) please ensure the header shall have
 ```
 Accept: application/json
 Content-Type: application/json
 ```
- 
+(2) the virtual domain is mapped as "store.test" other than "localhost" in this case, which can be configured in local "hosts" file.
+(3) please run the database migration and seeder files before the API testing (OR run the phpunit first, and all those files will be executed during unit testing)
+
 #### (1) create a store branch
 ```
 URI: http://store.test/api/stores
