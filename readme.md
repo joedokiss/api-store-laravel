@@ -22,6 +22,7 @@ $stores = [
 ![tree_structure](https://user-images.githubusercontent.com/39091872/51833525-ce2bb100-234b-11e9-89b5-67959f8c53ed.png)
 
 ###### snapshot 2
+![2019-02-11_12-20-17](https://user-images.githubusercontent.com/39091872/52543231-2490f900-2dfc-11e9-9b45-90e0e59ccf1e.png)
 
 * Each element in the $stores array stands for a store branch, and has a 'parent_id' indicating store's parent
 * Each element in the $stores array is saved into the database as a row.
@@ -35,6 +36,7 @@ The routes are defined in the /routes/api.php, all actions in this case would ne
 The models are defined in the /app/Models, in most cases, the API is leveraging the Laravel native Eloquent (ORM), and therefore, you may not see explicitly defined functions in models.
 
 The method "generateToken()" in the User model is used to generate the authentication token to access the API, essentially the token will be refreshed after each login.
+
 ###### Controllers:
 There are three main controllers involved in this case
 - /app/Http/Controllers/Auth/LoginController.php
@@ -42,9 +44,13 @@ There are three main controllers involved in this case
 - /app/Http/Controllers/StoresController.php
 it will take care of the routed HTTP actions according to URI
 
+###### Exceptions:
+
+###### Tree:
+/app/Lib/Tree.php
+
 ## 3. How the demo works:
-###### missions:
-/**
+###### Requirements:
  * (1) create a store branch
  * (2) update a store branch
  * (3) delete a store branch along with all of its children
@@ -52,7 +58,6 @@ it will take care of the routed HTTP actions according to URI
  * (5) view all store branches with all of their children
  * (6) view one specific store branch with all of its children
  * (7) view one specific store branch without any children
- */
  
 #### (1) create a store branch
 ```
@@ -132,10 +137,6 @@ eg. store A (id => 1) has children, and therefore, this will return a sub-tree (
 URI: http://store.test/api/stores/1
 ```
 
-## 4. Notes to unit test:
-the last tree test cases are dependent because they were testing the real actions other than leveraging the mocking any more, you may consider to test those one by one (roll back the database to original status with raw data every time) other than at once, but the following test sequence will work anyway.
-```
-* test_create_node_M_as_A_child
-* test_move_A_branch_as_C_child
-* test_delete_C_branch_and_children
-```
+## 4. About Unit Test:
+- unit test cases are located in /tests/Unit/StoreTest.php
+- The "setUp()" method is defined in the base class /tests/TestCase.php, which will refresh and reseed the store table between each individual test case so that all test cases can use the consistent tree structure.
