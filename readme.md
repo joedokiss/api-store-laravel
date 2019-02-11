@@ -1,7 +1,7 @@
 ## 1. About this API:
 > this Restful API is built by Laravel 5.5
 
-> the tree structure (see snapshot 1 as example, which is used in this demo application) will be essentially demonstrated as the array structure (eg. array $stores), and the tree will be built as (see snapshot 2 as example)
+> the tree structure (see snapshot 1) will be essentially demonstrated as the array structure (eg. array $stores), and the tree will be built as (see snapshot 2)
 ```
 $stores = [
 	['id' => 1,  'parent_id' => 0, 'store_name' => 'A'],
@@ -66,6 +66,9 @@ There are three main controllers involved in this case
 URI: http://store.test/api/register
 Body: {"name":"username","email":"email_address","password":"password","password_confirmation":"password"}
 ```
+
+![2019-02-11_13-21-19](https://user-images.githubusercontent.com/39091872/52543854-109bc600-2e01-11e9-8956-b7b0c2780738.png)
+
 after the user is registered, the token will be returned, and you can use this token (Authorization: Bearer Token) for the following API requests.
 
 ###### Some notes:
